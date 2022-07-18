@@ -37,6 +37,7 @@ fi
 
 if otool -L ../MacOS/CorsixTH | grep -q 'lua'; then
   lua="$(otool -L ../MacOS/CorsixTH | grep 'lua' | cut -d. -f4-5)"
+  lua=5.4
 elif lua -v >/dev/null; then
   lua="$(lua -v | cut -d" " -f2 | cut -d. -f1-2)"
 else
@@ -44,8 +45,19 @@ else
   echo "No Lua library or executable found, using version 5.3"
 fi
 
+arch=$(uname -m)
+
+dir=""
+if [ "$(arch)" = "i386" ]; then
+  dir="$(/usr/local/bin/luarocks show --rock-tree luafilesystem)"
+fi
+
+if [ "$(arch)" = "arm64" ]; then
+  dir="$(/opt/homebrew/bin/luarocks show --rock-tree luafilesystem)"
+fi
+
 # Assumes that all luarocks are installed in the same place, ie all globally or all locally
-dir="$(luarocks show --rock-tree luafilesystem)"
+# dir="$(luarocks show --rock-tree luafilesystem)"
 
 if [ -e lfs.so ] && [ -e lpeg.so ] && [ -z "$1" ]
   then echo "Luarocks for $lua in place."
